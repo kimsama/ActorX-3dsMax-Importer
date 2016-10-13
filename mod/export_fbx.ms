@@ -157,18 +157,18 @@ fn ExportFbxAnim =
 	g_playAnim = false
 
 	-- create target directory
-	local dir = getFilenamePath(AnimFileName) + GetExportSubDir() + "\\" + getFilenameFile(AnimFileName) + "\\"
+	local dir = getFilenamePath(g_lastDir2) + GetExportSubDir() + "\\" 
 	makeDir dir all:true
 
 	-- export all animations
-	for i = 1 to Anims.count do
+	for i = 1 to g_AnimArray.count do
 	(
-		local track = Anims[i]
+		local track = g_AnimArray[i]
 		local trackName = track.Name
 		local filename = dir + trackName
 		format "Exporting animation % (% frames) -> %\n" trackName track.NumRawFrames filename
 
-		ImportPsaFile AnimFileName i
+		ImportPsaFile g_AnimFiles[i] i all:true
 		SaveAXFile filename
 	)
 

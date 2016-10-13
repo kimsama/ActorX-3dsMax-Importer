@@ -1793,6 +1793,13 @@ fn axLoadAnimation index =
 	if (index > 0) and (index <= Anims.count) then ImportPsaFile AnimFileName index
 )
 
+-- @kims
+fn axLoadAnimation2 index =
+(
+	if (index > 0) and (index <= g_AnimArray.count) then ImportPsaFile g_animFiles[index] index all:true
+	--print "axLoadAnimation2"
+	--print animFIles[index]
+)
 
 rollout axInfoRollout "ActorX Importer"
 (
@@ -1841,6 +1848,7 @@ rollout axAnimImportRollout "Animation Import"
 	Group "Animation Import"
 	(
 		button   BtnImportPsa  "Import PSA ..."
+		button   BtnImportPsaInFolder "Import PSA in Folder" --@kims
 		listbox  LstAnims      "Animations:"     height:13
 		checkbox ChkAnimTime   "Update animation length" checked:g_updateTime
 		checkbox ChkFixLooping "Fix loop animation" checked:g_fixLooping tooltip:"Append 1st keyframe to animation\ntrack for smooth loop"
@@ -1868,10 +1876,45 @@ rollout axAnimImportRollout "Animation Import"
 			)
 		)
 	)
+	
+	global g_AnimFiles = #() -- @kims
+	global g_AnimArray = #() -- @kims
+	
+	-- @kims
+	on BtnImportPsaInFolder pressed do
+	(
+		if g_lastDir2 == undefined then g_lastDir2 = "$scripts"
+        dir = getSavepath caption:"Select PSA folder" initialDir:g_lastDir2
+		g_lastDir2 = dir
+		if dir != undefined do
+		(
+			psaFiles = getFiles (dir + "\\*.psa")
+	
+			local index = 1
+			for f in psaFiles do
+			(
+				AnimFileName = f
+				ImportPsaFile f index all:true
+				
+				append g_AnimArray Anims[1]
+				
+				index += 1
+			)
+		
+			LstAnims.items = psaFiles
+			g_AnimFiles = psaFiles
+			--print g_AnimFiles
+			--print ("count = " + Anims.count as string)
+			--print ("animArray count = " + g_AnimArray.count as string)
+			--print g_AnimArray
+		)
+	)
 
 	on BtnImportTrk pressed       do axLoadAnimation LstAnims.selection
 	on BtnImportAll pressed       do ImportPsaFile AnimFileName 1 all:true
-	on LstAnims doubleClicked sel do axLoadAnimation sel
+	--on LstAnims doubleClicked sel do axLoadAnimation sel
+	-- @kims
+	on LstAnims doubleClicked sel do axLoadAnimation2 sel
 
 	on ChkAnimTime   changed state do g_updateTime    = state
 	on ChkFixLooping changed state do g_fixLooping    = state
@@ -1882,7 +1925,7 @@ rollout axAnimImportRollout "Animation Import"
 	on axAnimImportRollout open do
 	(
 		-- fill LstAnims
-		LstAnims.items = for a in Anims collect (a.Name + " [" + (a.NumRawFrames as string) + "]")
+		--@kims LstAnims.items = for a in Anims collect (a.Name + " [" + (a.NumRawFrames as string) + "]")
 	)
 )
 
